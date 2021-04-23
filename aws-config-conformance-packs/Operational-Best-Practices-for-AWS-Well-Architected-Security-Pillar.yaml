@@ -23,6 +23,9 @@ Parameters:
   AcmCertificateExpirationCheckParamDaysToExpiration:
     Default: '90'
     Type: String
+  CwLogGroupsParamRetentionDays:
+    Default: '30'
+    Type: String
   GuarddutyNonArchivedFindingsParamDaysHighSev:
     Default: '1'
     Type: String
@@ -254,6 +257,12 @@ Resources:
   CwLoggroupRetentionPeriodCheck:
     Properties:
       ConfigRuleName: cw-loggroup-retention-period-check
+      InputParameters:
+        MinRetentionTime:
+          Fn::If:
+          - cwLogGroupsParamRetentionDays
+          - Ref: CwLogGroupsParamRetentionDays
+          - Ref: AWS::NoValue
       Source:
         Owner: AWS
         SourceIdentifier: CW_LOGGROUP_RETENTION_PERIOD_CHECK
@@ -1041,6 +1050,11 @@ Conditions:
     - Fn::Equals:
       - ''
       - Ref: AcmCertificateExpirationCheckParamDaysToExpiration
+  cwLogGroupsParamRetentionDays:
+    Fn::Not:
+    - Fn::Equals:
+      - ''
+      - Ref: CwLogGroupsParamRetentionDays
   guarddutyNonArchivedFindingsParamDaysHighSev:
     Fn::Not:
     - Fn::Equals:
